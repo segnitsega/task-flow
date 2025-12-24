@@ -1,5 +1,7 @@
 "use client";
 
+import type React from "react";
+
 import { createClient } from "@/app/lib/supabase/browserCient";
 import { Button } from "@/components/ui/button";
 import {
@@ -18,18 +20,12 @@ import { z } from "zod";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 
-const signUpSchema = z
-  .object({
-    email: z.string().email("Invalid email address"),
-    password: z.string().min(6, "Password must be at least 6 characters"),
-    repeatPassword: z.string(),
-  })
-  .refine((data) => data.password === data.repeatPassword, {
-    message: "Passwords do not match",
-    path: ["repeatPassword"],
-  });
+const signInSchema = z.object({
+  email: z.string().email("Invalid email address"),
+  password: z.string().min(6, "Password must be at least 6 characters"),
+});
 
-type SignUpFormData = z.infer<typeof signUpSchema>;
+type SignInFormData = z.infer<typeof signInSchema>;
 
 export default function Page() {
   const [error, setError] = useState<string | null>(null);
@@ -40,26 +36,26 @@ export default function Page() {
     register,
     handleSubmit,
     formState: { errors },
-  } = useForm<SignUpFormData>({
-    resolver: zodResolver(signUpSchema),
+  } = useForm<SignInFormData>({
+    resolver: zodResolver(signInSchema),
   });
 
-  const handleSignUp = async (data: SignUpFormData) => {
+  const handleLogin = async (data: SignInFormData) => {
     const supabase = createClient();
     setIsLoading(true);
     setError(null);
 
     try {
-      const { data: signupData,error } = await supabase.auth.signUp({
+      const { error } = await supabase.auth.signInWithPassword({
         email: data.email,
         password: data.password,
       });
-      if(signupData.session) {
-        router.push("/dashboard");
-        return;
+      if (error) {
+        console.log(`Login error: ${error}`);
+        throw error;
       }
-      if (error) throw error;
-      router.push("/auth/sign-up-success");
+      router.push("/dashboard");
+      router.refresh();
     } catch (error: unknown) {
       setError(error instanceof Error ? error.message : "An error occurred");
     } finally {
@@ -73,13 +69,13 @@ export default function Page() {
         <div className="flex flex-col gap-6">
           <Card>
             <CardHeader>
-              <CardTitle className="text-2xl">Create an account</CardTitle>
+              <CardTitle className="text-2xl">Welcome back</CardTitle>
               <CardDescription>
-                Get started with task-flow today
+                Sign in to your task-flow account
               </CardDescription>
             </CardHeader>
             <CardContent>
-              <form onSubmit={handleSubmit(handleSignUp)}>
+              <form onSubmit={handleSubmit(handleLogin)}>
                 <div className="flex flex-col gap-6">
                   <div className="grid gap-2">
                     <Label htmlFor="email">Email</Label>
@@ -104,31 +100,18 @@ export default function Page() {
                       <p className="text-red-500">{errors.password.message}</p>
                     )}
                   </div>
-                  <div className="grid gap-2">
-                    <Label htmlFor="repeat-password">Repeat Password</Label>
-                    <Input
-                      id="repeat-password"
-                      type="password"
-                      {...register("repeatPassword")}
-                    />
-                    {errors.repeatPassword && (
-                      <p className="text-red-500">
-                        {errors.repeatPassword.message}
-                      </p>
-                    )}
-                  </div>
                   {error && <p className="text-sm text-destructive">{error}</p>}
                   <Button type="submit" className="w-full" disabled={isLoading}>
-                    {isLoading ? "Creating account..." : "Sign up"}
+                    {isLoading ? "Signing in..." : "Sign in"}
                   </Button>
                 </div>
                 <div className="mt-4 text-center text-sm">
-                  Already have an account?{" "}
+                  Don&apos;t have an account?{" "}
                   <Link
-                    href="/auth/sign-in"
+                    href="/auth/sign-up"
                     className="underline underline-offset-4"
                   >
-                    Sign in
+                    Sign up
                   </Link>
                 </div>
               </form>
