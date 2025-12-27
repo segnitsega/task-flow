@@ -6,7 +6,7 @@ export default function Home() {
   return (
     <div className="min-h-screen bg-background">
       {/* Navigation */}
-      <nav className="border-b border-border/40 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+      <nav className="border-b border-border/40 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 sticky top-0 z-50">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <div className="flex h-16 items-center justify-between">
             <div className="flex items-center gap-2">
@@ -16,7 +16,7 @@ export default function Home() {
               <span className="text-xl font-semibold">task-flow</span>
             </div>
             <div className="flex items-center gap-4">
-              <Link href="/auth/login">
+              <Link href="/auth/sign-in">
                 <Button variant="ghost">Sign in</Button>
               </Link>
               <Link href="/auth/sign-up">

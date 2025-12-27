@@ -50,16 +50,15 @@ export default function Page() {
     setError(null);
 
     try {
-      const { data: signupData,error } = await supabase.auth.signUp({
+      const { data: signupData, error } = await supabase.auth.signUp({
         email: data.email,
         password: data.password,
       });
-      if(signupData.session) {
+      if (signupData.session) {
         router.push("/dashboard");
         return;
       }
       if (error) throw error;
-      router.push("/auth/sign-up-success");
     } catch (error: unknown) {
       setError(error instanceof Error ? error.message : "An error occurred");
     } finally {
