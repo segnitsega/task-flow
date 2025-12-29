@@ -1,8 +1,14 @@
 "use client";
 
+import SideBar from "../components/sidebar";
+import MainPage from "../components/mainpage";
+
 const page = () => {
   return (
-    <div>Dashboard</div>
+    <div className="flex h-screen bg-background">
+      <SideBar />
+      <MainPage />
+    </div>
   )
 }
 
